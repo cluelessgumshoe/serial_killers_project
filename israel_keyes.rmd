@@ -29,9 +29,9 @@ There is still an opportunity here to solve yet unsolved missing persons cases. 
 
 # Travel Patterns
 
-This killer travelled extensively.  This mapconnects the dots between his routes from date to date.
+This killer travelled extensively.  This map connects the dots between his routes from date to date.
 
-```{r routes_map, fig.align="center"}
+```{r routes_map, fig.align="left"}
 #next challenge: map routes!
 #https://rstudio-pubs-static.s3.amazonaws.com/259095_2f8cb24b43284692a8af916bd447931d.html
 map_setup <- borders("world", colour="grey80", fill="grey3")
@@ -67,15 +67,26 @@ us_travel
 
 This map colors coordinates by a *reason* for being in the area and the size of the points represent the *duration* of time the killer was there.  Clicking on the points revels more details.
 
-```{r durations_map, fig.align="center"}
+```{r durations_map, fig.align="left"}
+
 #make the sf object
 iskey_locations <- st_as_sf(is_key_geo_df, coords = c("from_lon", "from_lat"), crs = 4326)
 #set the color palette
 mapviewOptions(vector.palette =  viridis::inferno)
 #map with sizes and locations colored by reason buckets
 mapview(iskey_locations, legend = F, alpha = 0, burst = T, 
-        width = "2000", align = "center", cex = "DURATION", zcol = "REASON", 
+        width = "2500", align = "center", cex = "DURATION", zcol = "REASON", 
         map.types = c("CartoDB.DarkMatter","CartoDB.Positron","OpenStreetMap","Esri.WorldImagery","OpenTopoMap"))
+
+```
+
+
+```{r}
+#this could be cool if broken by state and or city; might neet to do a lieelt cleaning to make that happen
+is_key_geo_df %>%
+  group_by(LOCATION) %>% 
+  summarise(MONTHS = round(sum(DURATION)/30),1) %>%
+  DT::datatable()
 
 ```
 
