@@ -1,0 +1,81 @@
+---
+title: "Serial Killer"
+subtitle: "Israel Keyes"
+always_allow_html: yes
+output:
+  prettydoc::html_pretty:
+    theme: tactile
+    highlight: github
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, warning = F, message = F, eval = T, error = F, cache = T)
+```
+
+```{r loads}
+# Install and load pacman if not already installed
+if (!require("pacman")) install.packages("pacman")
+library(pacman)
+# Load packages and install if not already 
+p_load(tidyverse, mapview, sf, feather, ggplot2)
+#load data
+is_key_geo_df <- feather::read_feather("data/is_key_geocoded.feather")
+```
+
+# Unknown Victim Identities
+
+There is still an opportunity here to solve yet unsolved missing persons cases.  Though this killer committed suicide shortly after his incarceration, it is believed that there are many more potential victims whose cases have not yet been solved.  His methods were crude and his victims *random*.  Using the data set posted on *crimejunkiepodcast.com**^[http://dig.abclocal.go.com/wls/documents/wls_081313_Israel%20Keyes_timeline.pdf] a better picture of the expansive areas for which these victims could be from comes into view.
+
+# Travel Patterns
+
+This killer travelled extensively.  This mapconnects the dots between his routes from date to date.
+
+```{r routes_map, fig.align="center"}
+#next challenge: map routes!
+#https://rstudio-pubs-static.s3.amazonaws.com/259095_2f8cb24b43284692a8af916bd447931d.html
+map_setup <- borders("world", colour="grey80", fill="grey3")
+us_travel <- ggplot() + map_setup +
+  geom_curve(data=is_key_geo_df,
+             aes(x=from_lon, y=from_lat, xend=to_lon, yend=to_lat),
+             col="orangered4",
+             size=.5,
+             curvature=0.2) +
+  geom_point(data=is_key_geo_df,
+             aes(x=from_lon, y=from_lat), 
+             colour="orangered2",
+             size=1.5) +
+  geom_point(data=is_key_geo_df,
+             aes(x=to_lon, y=to_lat), 
+             colour="orangered2") +
+  theme(axis.line=element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.ticks=element_blank(),
+        plot.title=element_text(hjust=0.5, size=12)) +
+  ggtitle("Israel Keyes: Travel Routes") +
+  #check the min/max of long and lat to get good zoom level
+  coord_cartesian(ylim=c(10, 75), xlim=c(-160, 70))
+us_travel
+
+```
+
+
+# Interactive Map
+
+This map colors coordinates by a *reason* for being in the area and the size of the points represent the *duration* of time the killer was there.  Clicking on the points revels more details.
+
+```{r durations_map, fig.align="center"}
+#make the sf object
+iskey_locations <- st_as_sf(is_key_geo_df, coords = c("from_lon", "from_lat"), crs = 4326)
+#set the color palette
+mapviewOptions(vector.palette =  viridis::inferno)
+#map with sizes and locations colored by reason buckets
+mapview(iskey_locations, legend = F, alpha = 0, burst = T, 
+        width = "2000", align = "center", cex = "DURATION", zcol = "REASON", 
+        map.types = c("CartoDB.DarkMatter","CartoDB.Positron","OpenStreetMap","Esri.WorldImagery","OpenTopoMap"))
+
+```
+
