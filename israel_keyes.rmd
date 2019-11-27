@@ -25,7 +25,7 @@ is_key_geo_df <- feather::read_feather("data/is_key_geocoded.feather")
 
 # Unknown Victim Identities
 
-There is still an opportunity here to solve yet unsolved missing persons cases.  Though this killer committed suicide shortly after his incarceration, it is believed that there are many more potential victims whose cases have not yet been solved.  His methods were crude and his victims *random*.  Using the data set posted on *crimejunkiepodcast.com**^[http://dig.abclocal.go.com/wls/documents/wls_081313_Israel%20Keyes_timeline.pdf] a better picture of the expansive areas for which these victims could be from comes into view.
+There is still an opportunity here to solve yet unsolved missing persons cases.  Though this killer committed suicide shortly after his incarceration, it is believed that there are many more potential victims whose cases have not yet been solved.  His methods were crude and his victims *random*.  Using the data set posted on **crimejunkiepodcast.com**^[http://dig.abclocal.go.com/wls/documents/wls_081313_Israel%20Keyes_timeline.pdf] a better picture of the expansive areas for which these victims could be from comes into view.
 
 # Travel Patterns
 
@@ -80,13 +80,18 @@ mapview(iskey_locations, legend = F, alpha = 0, burst = T,
 
 ```
 
+<br>
 
-```{r}
+```{r table, fig.align="left"}
 #this could be cool if broken by state and or city; might neet to do a lieelt cleaning to make that happen
 is_key_geo_df %>%
   group_by(LOCATION) %>% 
-  summarise(MONTHS = round(sum(DURATION)/30),1) %>%
-  DT::datatable()
+  summarise(MONTHS = round(sum(DURATION)/30,2),
+            DATES = paste(FROM_DATE,collapse=",")) %>%
+  DT::datatable( options = (list(rownames = F, width = "80%")))
 
 ```
 
+<div style="position: fixed; bottom: 15px; right:10px;">
+  <div id="feedback"><a href="https://github.com/cluelessgumshoe/serial_killers_project"> <B>CLUELESSGUMSHOE</B></a></div>
+</div>
